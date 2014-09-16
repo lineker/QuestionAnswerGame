@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <style>
+    #blueRectangle {
+      background: blue;
+      
+      float: right;
+
+  }
+  .box
+  {
+      height: 400px;
+      width: 50%;
+      background: #000;
+      font-size: 48px;
+      font-style: oblique;
+      color: #FFF;
+      text-align: center;
+      vertical-align: middle;
+      display: table-cell;
+  }
+  #redRectangle {
+      background: red ;
+      
+      float: left;
+
+  }
+  #footer {   
+  position:fixed;
+     left:0px;
+     bottom:0px;
+     height:60px;
+     width:100%;
+     background:#999;
+  }
+  input.submit {
+    width: 20em;  height: 20em;
+  }
+
+  </style>
+  <script src="jquery-1.11.1.min.js"></script>
+    <script>
+      var paused = 0;
+      function updateStats(memuse) {
+        console.log(memuse);
+        //document.getElementById('tcptext').innerHTML = document.getElementById('tcptext').innerHTML + " | " +memuse;
+        if(paused == 0) {
+          playSound('buzzer.mp3');
+          if(memuse == "H") {
+            $("#blueRectangle").css("background", "yellow").css("color", "black");
+          } else if(memuse == "M"){
+            $("#redRectangle").css("background", "yellow").css("color", "black");
+          }
+          paused = 1;
+        }
+        
+      }
+
+      function resetlights() {
+        paused = 0;
+        $("#blueRectangle").css("background", "blue").css("color", "white");
+        $("#redRectangle").css("background", "red").css("color", "white");
+      }
+
+      function resetscore() {
+        document.getElementById('pointhomens').innerHTML = '0';
+        document.getElementById('pointmulheres').innerHTML = '0';
+      }
+
+
+
+      function increasePoint(p) {
+         var pointhomens = document.getElementById('pointhomens');
+        var pointmulheres = document.getElementById('pointmulheres');
+        if(p == "H") {
+          var points = parseInt(pointhomens.innerHTML);
+          points++;
+          pointhomens.innerHTML = points;
+        } else if(p == "M") {
+          var points = parseInt(pointmulheres.innerHTML);
+          points++;
+          pointmulheres.innerHTML = points;
+        }
+      }
+
+      function decreasePoint(p) {
+        var pointhomens = document.getElementById('pointhomens');
+        var pointmulheres = document.getElementById('pointmulheres');
+        if(p == "H") {
+          var points = parseInt(pointhomens.innerHTML);
+          points--;
+          pointhomens.innerHTML = points;
+        } else if(p == "M") {
+          var points = parseInt(pointmulheres.innerHTML);
+          points--;
+          pointmulheres.innerHTML = points;
+        }
+      }
+
+      function playSound(soundfile) {
+        document.getElementById("dummy").innerHTML=
+          "<embed src=\""+soundfile+"\" hidden=\"true\" autostart=\"true\" loop=\"false\" />";
+      }
+
+
+
+      ///WEBSOCKET
+      var host = window.document.location.host.replace(/:.*/, '');
+      console.log(host);
+      var ws = new WebSocket('ws://' + host + ':8080');
+      ws.onmessage = function (event) {
+        updateStats(event.data);
+      };
+      ws.onopen = function(evt) {
+         //wsrobot.send(key);
+         console.warn("ws connection open");
+         document.getElementById('tcptext').innerHTML = "CONECTADO";
+      };
+      ws.onclose = function(evt) { 
+        console.warn("ws Connection was closed...");
+        document.getElementById('tcptext').innerHTML = "DISCONECTADO"; 
+      };
+
+      //function send() {
+      //  ws.send("M");
+      //}
+
+    </script>
+  </head>
+  <body>
+    <div id="blueRectangle" class="box"><strong>HOMENS : <div id='pointhomens'>0</div></strong></div>
+    <div id="redRectangle" class="box"><strong>MULHERES : <div id='pointmulheres'>0</div></strong> </div>
+    
+    <div style="float:left">
+      
+      <input type="submit"  value="-1" onclick="decreasePoint('M')">
+      <input  type="submit" value="+1" onclick="increasePoint('M')">
+      
+    </div>
+    
+    <div style="float:right">
+      
+      <input type="submit" value="-1" onclick="decreasePoint('H')">
+      <input type="submit" value="+1" onclick="increasePoint('H')">
+      
+    </div>
+    <span id="dummy"></span>
+    <!--<p><a href="#" onclick="playSound('buzzer.mp3');">Click here to hear a bird sing</a></p>-->
+    <div id="footer">
+    <strong>Server Stats : <div id='tcptext'></div></strong> (PLACAR)
+    <div style="float:right">
+      <input type="submit" value="RESET LIGHTS" class="submit" onclick="resetlights()">
+      <input type="submit" value="RESET SCORE" onclick="resetscore">
+    </div>
+    </div>
+  </body>
+</html>

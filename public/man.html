@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function updateStats(memuse) {
+        console.log(memuse);
+        //document.getElementById('tcptext').innerHTML = document.getElementById('tcptext').innerHTML + " | " +memuse;
+      }
+
+      var host = window.document.location.host.replace(/:.*/, '');
+      console.log(host);
+      var ws = new WebSocket('ws://' + host + ':8080');
+      ws.onmessage = function (event) {
+        
+      };
+      ws.onopen = function(evt) {
+         //wsrobot.send(key);
+         console.warn("ws connection open");
+         document.getElementById('tcptext').innerHTML = "CONECTADO";
+      };
+      ws.onclose = function(evt) { 
+        console.warn("ws Connection was closed..."); 
+        document.getElementById('tcptext').innerHTML = "DISCONECTADO";
+      };
+
+      function send() {
+        ws.send("H");
+      }
+    </script>
+  </head>
+  <body>
+    <strong>Server Stats : <div id='tcptext'></div> (HOMENS)</strong><br>
+    
+   
+    <input type="image" src="buzzer.png" alt="Submit" width="1000" height="1000" onclick="send()">
+  </body>
+</html>
